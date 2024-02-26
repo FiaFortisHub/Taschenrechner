@@ -1,13 +1,13 @@
 ﻿namespace Taschenrechner;
 
-// TODO: unbekannter Operator abfangen (check function mit allem was vorher abgefangen wird), double Problem lösen oder double abfangen, ReadMe
+// TODO: unbekannter Operator abfangen (check function mit allem was vorher abgefangen wird), ReadMe, packet erstellen
 class Program
 {
     static void Main(string[] args)
     {
         while (true)
         {
-            Console.WriteLine("Geben Sie eine Rechnung ein (z.B.: 4 + 5.3 * -2), oder 'exit' zum beenden");
+            Console.WriteLine("Geben Sie eine Rechnung ein (z.B.: 4 + 5,3 * -2), oder 'exit' zum beenden");
             string input = Console.ReadLine(); // reads term
 
             // check for empty or only whitespaces
