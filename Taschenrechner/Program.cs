@@ -13,19 +13,19 @@ class Program
         while (true)
         {
             Console.WriteLine("Geben Sie eine Rechnung ein (z.B.: 4 + 5,3 * -2), oder 'exit' zum beenden");
-            
-            string input = Console.ReadLine(); // reads term
 
-            // validates before calculating
-            if (Validate(input) == false) 
-            {
-                continue;
-            }
+            string input = Console.ReadLine(); // reads term
 
             // exit case
             if (input.ToLower() == "exit")
             {
                 break;
+            }
+
+            // validates before calculating
+            if (Validate(input) == false)
+            {
+                continue;
             }
 
             // term into an array
@@ -36,9 +36,7 @@ class Program
                 Console.WriteLine(elem);
             }*/
 
-            // TODO: oneline
-            double result = Calculate(InfixToPrefixConverter.InfixToPrefix(termSplit));
-            Console.WriteLine($"Ergebnis: {result}");
+            Console.WriteLine($"Ergebnis: {Calculate(InfixToPrefixConverter.InfixToPrefix(termSplit))}");
         }
     }
 
@@ -90,54 +88,55 @@ class Program
     }
 
     // function to validate console input
-    public static bool Validate (string input)
+    public static bool Validate(string input)
     {
         // check for empty or only whitespaces
         if (string.IsNullOrWhiteSpace(input))
-            {
-                Console.WriteLine("Ihre Eingabe ist ungültig.");
-                return false;
-            }
-        
-        int spaceCount = Regex.Count(input, " "); 
-        
-        // check for complete term
-        if (spaceCount % 2 == 0) 
         {
-            string[] termSplit = input.Split(' ');
-
-            // check for valid term
-            foreach (string elem in termSplit) 
-            {
-                int i = 0;
-                bool check = true;
-                
-                // check for operand
-                if (i % 2 == 0)
-                {
-                    Regex regexItem1 = new Regex(@"^-?[0-9][0-9,^\s]+$");
-                    check = regexItem1.IsMatch(elem);
-                    i += 1;
-                }
-
-                //check for operator
-                else {
-                    Regex regexItem2 = new Regex(@"^\+|-|\*|/$");
-                    check = regexItem2.IsMatch(elem);
-                    i += 1;
-                 } ;
-                
-                if (check == false)
-                {
-                    Console.WriteLine("Ihre Eingabe entspricht keinem gültigen Term. Bitte kontrollieren Sie auf Vollständigkeit und korrektes spacing.");
-                    return false;
-                }
-            }
+            Console.WriteLine("Ihre Eingabe ist ungültig.");
+            return false;
         }
-        else 
+
+        int spaceCount = Regex.Count(input, " ");
+
+        // check for complete term
+        if (spaceCount % 2 == 1)
         {
+
             Console.WriteLine("Ihre Eingabe beinhaltet zu viele Whitespaces, oder ist kein vollständiger Term und ist somit ungültig.");
             return false;
+        }
+
+        string[] termSplit = input.Split(' ');
+        int i = 0;
+        Regex regexItem1 = new Regex(@"^-?[0-9]+(\,[0-9]+)?$");
+        Regex regexItem2 = new Regex(@"^\+|-|\*|/$");
+
+        // check for valid term
+        foreach (string elem in termSplit)
+        {
+            bool check = true;
+            Console.WriteLine($"anfang: {i}");
+            // check for operand
+            if (i % 2 == 0)
+            {
+                Console.WriteLine($"for: {i}");
+                check = regexItem1.IsMatch(elem);
+                i += 1;
+            }
+
+            //check for operator
+            else
+            {
+                check = regexItem2.IsMatch(elem);
+                i += 1;
+            };
+
+            if (!check)
+            {
+                Console.WriteLine("Ihre Eingabe entspricht keinem gültigen Term.");
+                return false;
+            }
         }
 
         return true;
