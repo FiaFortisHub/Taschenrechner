@@ -1,11 +1,7 @@
-﻿using System.Net;
-using System.Reflection.Metadata.Ecma335;
-using System.Security.Cryptography.X509Certificates;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 
 namespace Taschenrechner;
 
-// TODO: unbekannter Operator abfangen (check function mit allem was vorher abgefangen wird), ReadMe, packet erstellen
 class Program
 {
     static void Main(string[] args)
@@ -14,7 +10,7 @@ class Program
         {
             Console.WriteLine("Geben Sie eine Rechnung ein (z.B.: 4 + 5,3 * -2), oder 'exit' zum beenden");
 
-            string input = Console.ReadLine(); // reads term
+            string input = Console.ReadLine() ?? string.Empty; // reads term
 
             // exit case
             if (input.ToLower() == "exit")
@@ -30,11 +26,6 @@ class Program
 
             // term into an array
             string[] termSplit = input.Split(' ');
-
-            /*foreach (string elem in termSplit)
-            {
-                Console.WriteLine(elem);
-            }*/
 
             Console.WriteLine($"Ergebnis: {Calculate(InfixToPrefixConverter.InfixToPrefix(termSplit))}");
         }
@@ -70,7 +61,8 @@ class Program
                         }
                         else
                         {
-                            throw new DivideByZeroException("Teilung durch Null nicht möglich");
+                            Console.WriteLine("Teilung durch Null nicht möglich");
+                            return 1;
                         }
                         break;
                     case "^":
@@ -90,6 +82,14 @@ class Program
     // function to validate console input
     public static bool Validate(string input)
     {
+
+        string[] termSplit = input.Split(' ');
+        int Pointer = 0;
+        int spaceCount = Regex.Count(input, " ");
+        int count = 0;
+        Regex regexItem1 = new Regex(@"^-?[0-9]+(\,[0-9]+)?$");
+        Regex regexItem2 = new Regex(@"^\+|-|\*|/|\^$");
+
         // check for empty or only whitespaces
         if (string.IsNullOrWhiteSpace(input))
         {
@@ -97,7 +97,6 @@ class Program
             return false;
         }
 
-        int spaceCount = Regex.Count(input, " ");
 
         // check for complete term
         if (spaceCount % 2 == 1)
@@ -107,38 +106,58 @@ class Program
             return false;
         }
 
-        string[] termSplit = input.Split(' ');
-        int i = 0;
-        Regex regexItem1 = new Regex(@"^-?[0-9]+(\,[0-9]+)?$");
-        Regex regexItem2 = new Regex(@"^\+|-|\*|/$");
-
         // check for valid term
         foreach (string elem in termSplit)
         {
             bool check = true;
-            Console.WriteLine($"anfang: {i}");
+            bool brace = false;
+
             // check for operand
-            if (i % 2 == 0)
+            if (Pointer % 2 == 0)
             {
-                Console.WriteLine($"for: {i}");
                 check = regexItem1.IsMatch(elem);
-                i += 1;
             }
 
             //check for operator
             else
             {
                 check = regexItem2.IsMatch(elem);
-                i += 1;
             };
 
-            if (!check)
+            brace = CheckBraces(elem, ref count);
+
+            if (!check && !brace || count < 0)
             {
                 Console.WriteLine("Ihre Eingabe entspricht keinem gültigen Term.");
                 return false;
             }
+            else if (brace)
+            {
+                continue;
+            }
+            Pointer += 1;
         }
-
+        
+        if (count > 0)
+        {
+            return false;
+        }
         return true;
+    }
+
+    public static bool CheckBraces(string elem, ref int count)
+    {
+
+        if (elem == "(")
+        {
+            count += 1;
+            return true;
+        }
+        else if (elem == ")")
+        {
+            count -= 1;
+            return true;
+        }
+        return false;
     }
 }

@@ -17,3 +17,6 @@ In einem Term sähe das wie folgt aus:
 
 Um Dezimalzahlen dazustellen geben Sie die Zahl wie folgt ein:
 de_DE 2,3 -> in einem Term: 2,3 + 4,5
+
+Klammerung sind möglich, auch da muss auf Whitespaces geachtet werden und jede Klammer muss nach dem öffnen innerhalb des Termes geschlossen werden.
+Auch darf nicht zuerst eine geschlossene Klammer eigegeben werden wenn keine zugehörige geöffnette Klammer vorhanden ist.
