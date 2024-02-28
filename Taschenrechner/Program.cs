@@ -1,4 +1,9 @@
-﻿namespace Taschenrechner;
+﻿using System.Net;
+using System.Reflection.Metadata.Ecma335;
+using System.Security.Cryptography.X509Certificates;
+using System.Text.RegularExpressions;
+
+namespace Taschenrechner;
 
 // TODO: unbekannter Operator abfangen (check function mit allem was vorher abgefangen wird), ReadMe, packet erstellen
 class Program
@@ -8,12 +13,12 @@ class Program
         while (true)
         {
             Console.WriteLine("Geben Sie eine Rechnung ein (z.B.: 4 + 5,3 * -2), oder 'exit' zum beenden");
+            
             string input = Console.ReadLine(); // reads term
 
-            // check for empty or only whitespaces
-            if (string.IsNullOrWhiteSpace(input))
+            // validates before calculating
+            if (Validate(input) == false) 
             {
-                Console.WriteLine("Ihre Eingabe ist ungültig.");
                 continue;
             }
 
@@ -25,6 +30,11 @@ class Program
 
             // term into an array
             string[] termSplit = input.Split(' ');
+
+            /*foreach (string elem in termSplit)
+            {
+                Console.WriteLine(elem);
+            }*/
 
             // TODO: oneline
             double result = Calculate(InfixToPrefixConverter.InfixToPrefix(termSplit));
@@ -77,5 +87,59 @@ class Program
         }
 
         return stack.Pop();
+    }
+
+    // function to validate console input
+    public static bool Validate (string input)
+    {
+        // check for empty or only whitespaces
+        if (string.IsNullOrWhiteSpace(input))
+            {
+                Console.WriteLine("Ihre Eingabe ist ungültig.");
+                return false;
+            }
+        
+        int spaceCount = Regex.Count(input, " "); 
+        
+        // check for complete term
+        if (spaceCount % 2 == 0) 
+        {
+            string[] termSplit = input.Split(' ');
+
+            // check for valid term
+            foreach (string elem in termSplit) 
+            {
+                int i = 0;
+                bool check = true;
+                
+                // check for operand
+                if (i % 2 == 0)
+                {
+                    Regex regexItem1 = new Regex(@"^-?[0-9][0-9,^\s]+$");
+                    check = regexItem1.IsMatch(elem);
+                    i += 1;
+                }
+
+                //check for operator
+                else {
+                    Regex regexItem2 = new Regex(@"^\+|-|\*|/$");
+                    check = regexItem2.IsMatch(elem);
+                    i += 1;
+                 } ;
+                
+                if (check == false)
+                {
+                    Console.WriteLine("Ihre Eingabe entspricht keinem gültigen Term. Bitte kontrollieren Sie auf Vollständigkeit und korrektes spacing.");
+                    return false;
+                }
+            }
+        }
+        else 
+        {
+            Console.WriteLine("Ihre Eingabe beinhaltet zu viele Whitespaces, oder ist kein vollständiger Term und ist somit ungültig.");
+            return false;
+        }
+
+        return true;
     }
 }
